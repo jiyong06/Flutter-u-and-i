@@ -9,6 +9,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  DateTime selectedDate = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
           width: MediaQuery.of(context).size.width,
           child: Column(
             children: [
-              _TopPart(),
+              _TopPart(
+                selectedDate: selectedDate,
+                onPressed: onHeartPressed,
+              ),
               _BottomPart(),
             ],
           ),
@@ -27,24 +36,54 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  void onHeartPressed() {
+    final DateTime now = DateTime.now();
+
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            color: Colors.white,
+            height: 300.0,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              initialDateTime: selectedDate,
+              maximumDate: DateTime(
+                now.year,
+                now.month,
+                now.day,
+              ),
+              onDateTimeChanged: (DateTime date) {
+                setState(() {
+                  selectedDate = date;
+                });
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-class _TopPart extends StatefulWidget {
-  const _TopPart({super.key});
+class _TopPart extends StatelessWidget {
+  final DateTime selectedDate;
+  final VoidCallback onPressed;
 
-  @override
-  State<_TopPart> createState() => _TopPartState();
-}
-
-class _TopPartState extends State<_TopPart> {
-  DateTime selectdeDate = DateTime(
-    DateTime.now().year,
-    DateTime.now().month,
-    DateTime.now().day,
-  );
+  _TopPart({
+    required this.selectedDate,
+    required this.onPressed,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme=theme.textTheme;
     final now = DateTime.now();
 
     return Expanded(
@@ -53,82 +92,35 @@ class _TopPartState extends State<_TopPart> {
         children: [
           Text(
             'U&I',
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'paris',
-              fontSize: 80.0,
-            ),
+            style: textTheme.headline1,
           ),
           Column(
             children: [
               Text(
                 '우리 처음 만난날',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'sunf',
-                  fontSize: 30.0,
-                ),
+                style: textTheme.bodyText1,
               ),
               Text(
-                '${selectdeDate.year}.${selectdeDate.month}.${selectdeDate.day}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'sunf',
-                  fontSize: 20.0,
-                ),
+                '${selectedDate.year}.${selectedDate.month}.${selectedDate.day}',
+                style: textTheme.bodyText2,
               ),
             ],
           ),
           IconButton(
             iconSize: 60,
-            onPressed: () {
-              showCupertinoDialog(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      color: Colors.white,
-                      height: 300.0,
-                      child: CupertinoDatePicker(
-                        mode: CupertinoDatePickerMode.date,
-                        initialDateTime: selectdeDate,
-                        maximumDate: DateTime(
-                          now.year,
-                          now.month,
-                          now.day,
-                        ),
-                        onDateTimeChanged: (DateTime date){
-                          setState(() {
-                            selectdeDate = date;
-                          });
-                        },
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
+            onPressed: onPressed,
             icon: Icon(
               Icons.favorite,
               color: Colors.red,
             ),
           ),
           Text(
-            'D+${
-              DateTime(
-                now.year,
-                now.month,
-                now.day,
-              ).difference(selectdeDate).inDays + 1
-            }',
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'sunf',
-              fontSize: 50.0,
-              fontWeight: FontWeight.w700,
-            ),
+            'D+${DateTime(
+                  now.year,
+                  now.month,
+                  now.day,
+                ).difference(selectedDate).inDays + 1}',
+            style: textTheme.headline2,
           )
         ],
       ),
